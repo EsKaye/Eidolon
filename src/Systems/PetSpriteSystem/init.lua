@@ -135,34 +135,41 @@ function PetSpriteSystem:playAnimation(animationType)
     local config = ANIMATION_CONFIG[animationType]
     local frameCount = config.FRAMES
     local duration = config.DURATION
+    local frameTime = duration / frameCount
     
-    -- Animation loop
-    spawn(function()
-        while self.currentState == animationType do
-            for frame = 1, frameCount do
-                if self.currentState ~= animationType then break end
-                
-                -- Update sprite frame
-                self.sprite.ImageRectOffset = Vector2.new(
-                    (frame - 1) * self.petData.frameSize.X,
-                    0
-                )
-                
-                -- Add special effects based on state
-                if animationType == "HAPPY" then
-                    self:addHappyEffects()
-                elseif animationType == "EXCITED" then
-                    self:addExcitedEffects(frame)
-                end
-                
-                -- Wait for next frame
-                wait(duration / frameCount)
-            end
-            
-            -- Loop idle animation, stop others
+    -- Store previous connection
+    if self.animationConnection then
+        self.animationConnection:Disconnect()
+    end
+    
+    -- Animation loop using RunService
+    local startTime = tick()
+    local currentFrame = 1
+    
+    self.animationConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        local elapsed = tick() - startTime
+        currentFrame = math.floor(elapsed / frameTime) % frameCount + 1
+        
+        -- Update sprite frame
+        self.sprite.ImageRectOffset = Vector2.new(
+            (currentFrame - 1) * self.petData.frameSize.X,
+            0
+        )
+        
+        -- Add special effects based on state
+        if animationType == "HAPPY" then
+            self:addHappyEffects()
+        elseif animationType == "EXCITED" then
+            self:addExcitedEffects(currentFrame)
+        end
+        
+        -- Check if animation should loop or stop
+        if elapsed >= duration then
             if animationType ~= "IDLE" then
                 self:playAnimation("IDLE")
-                break
+            else
+                self.animationConnection:Disconnect()
+                self.animationConnection = nil
             end
         end
     end)
@@ -279,7 +286,23 @@ function PetSpriteSystem:setScale(scale)
 end
 
 function PetSpriteSystem:destroy()
-    self.isAnimating = false
+    if self.animationConnection then
+        self.animationConnection:Disconnect()
+        self.animationConnection = nil
+    end
+    
+    if self.sprite then
+        self.sprite:Destroy()
+        self.sprite = nil
+    end
+    
+    if self.effects then
+        for _, effect in pairs(self.effects) do
+            effect:Destroy()
+        end
+        self.effects = {}
+    end
+    
     self.effectsSystem:destroy()
     self.container:Destroy()
 end

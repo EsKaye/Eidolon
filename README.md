@@ -1,141 +1,135 @@
-# 🐾 Petfinity
+# Petfinity - AI-Generated & Persistent World System
 
-A magical pet collection and care game built with Roblox Studio.
+## Overview
+
+Petfinity is a procedurally generated world system for Roblox, featuring AI-driven terrain generation, biome blending, structure placement, and world persistence. The system is designed to create immersive, unique environments that persist across play sessions.
+
+![Petfinity](https://example.com/petfinity_banner.png)
 
 ## Features
 
-- 🎲 Gacha roll system with unique pets
-- 🐱 Adorable pets with special effects
-- 🌟 Special effects for rare pets
-- 🏆 Competitive leaderboards
-- 🎁 Daily rewards
-- 👑 VIP benefits
-- 📱 Mobile-friendly UI design
+### 📊 Procedural World Generation
+- **Terrain Generation**: Uses multi-octave Perlin noise for natural-looking landscapes
+- **Biome System**: Seamless transitions between diverse environments
+- **Structure Placement**: AI-driven placement of buildings and landmarks appropriate to each biome
+- **Natural Distribution**: Realistic biome transitions following ecological rules
 
-## Getting Started
+### 🔄 Dynamic Chunk Loading
+- **Player-Proximity Loading**: Only loads chunks near players for optimal performance
+- **Priority System**: Loads the most important chunks first for a better user experience
+- **Smart Unloading**: Efficiently removes distant chunks to conserve resources
 
-### Prerequisites
+### 💾 World Persistence
+- **DataStore Integration**: Saves world data between sessions
+- **Player Data Tracking**: Remembers player information and progress
+- **Resilient Storage**: Fallback to in-memory backup if DataStore is unavailable
+- **Auto-Save System**: Periodic saving to prevent data loss
 
-- Roblox Studio
-- Rojo
-- Git
+### 🏗️ Structure System
+- **Biome-Specific Structures**: Different types of buildings for each environment
+- **Placement Rules**: Smart positioning based on terrain characteristics
+- **Weighted Distribution**: Realistic density and variety of structures
 
-### Installation
+## System Architecture
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Petfinity.git
-cd Petfinity
+The system follows a modular architecture with specialized components:
+
+- **AIController**: Coordinates the entire system and integrates all modules
+- **NoiseGenerator**: Creates procedural noise patterns for terrain and features
+- **BiomeBlender**: Manages biome transitions and material distribution
+- **StructurePlacer**: Handles procedural structure placement
+- **PersistenceManager**: Manages saving and loading of world data
+- **ChunkManager**: Controls dynamic chunk loading based on player position
+
+## Usage
+
+### Basic World Generation
+
+```lua
+local AIController = require(game.ServerScriptService.Server.AIController)
+
+-- Generate a default world
+AIController:generateWorld()
+
+-- Generate a world with custom parameters
+AIController:generateWorld({
+    worldSize = 512,
+    chunkSize = 32,
+    seed = 12345,
+    biomeCount = 6,
+    structureDensity = 0.1
+})
 ```
 
-2. Connect to Rojo in Roblox Studio:
-   - Open Roblox Studio
-   - Click the Rojo plugin button
-   - Click "Connect"
-   - Enter `localhost` and port `34872`
+### Saving and Loading Worlds
 
-## Project Structure
+```lua
+-- Save the current world
+AIController:saveWorld()
 
-```
-Petfinity/
-├── src/
-│   ├── Client/           # Client-side scripts
-│   │   ├── UI/          # User interface components
-│   │   ├── Animation/   # Animation controllers
-│   │   ├── Effects/     # Visual effects
-│   │   ├── Camera/      # Camera controls
-│   │   └── PetInteraction/ # Pet interaction scripts
-│   ├── Server/          # Server-side scripts
-│   │   ├── Leaderboards/    # Leaderboard system
-│   │   ├── Achievements/    # Achievement system
-│   │   ├── Monetization/    # In-game purchases
-│   │   ├── BiomeHandler/    # Biome management
-│   │   └── PetAI/          # Pet AI system
-│   └── Shared/          # Shared modules
-│       ├── PetSystem/   # Pet management
-│       ├── BiomeData/   # Biome configurations
-│       ├── EventSystem/ # Event handling
-│       └── AudioManager/ # Sound management
-├── assets/             # Game assets
-│   ├── Models/        # 3D models
-│   ├── Sounds/        # Audio files
-│   └── Textures/      # Image textures
-└── config/            # Configuration files
+-- Load a previously saved world
+AIController:loadWorld()
+
+-- Load a specific world by identifier
+AIController:loadWorld("my_custom_world")
 ```
 
-## Game Systems
+### Customization
 
-### GachaSystem
-- Handles pet rolling mechanics
-- Manages rarity tiers
-- Controls drop rates
+```lua
+-- Adjust parameters before generation
+AIController:setWorldParameters({
+    seed = os.time(),
+    worldSize = 1024,
+    structureDensity = 0.2
+})
 
-### PetSystem
-- Manages pet states and behaviors
-- Handles pet interactions
-- Controls pet progression
+-- Enable debug mode for visual chunk boundaries
+AIController.chunkManager:setDebugMode(true)
 
-### UISystem
-- Manages all user interfaces
-- Handles mobile responsiveness
-- Controls animations and transitions
-
-### EffectsSystem
-- Manages visual effects
-- Controls particle systems
-- Handles special effects for rare pets
-
-### DailyRewardSystem
-- Manages daily rewards
-- Tracks player streaks
-- Handles reward distribution
-
-### SeasonalEventSystem
-- Manages seasonal events
-- Controls event rewards
-- Handles event progression
-
-### LeaderboardSystem
-- Manages player rankings
-- Tracks achievements
-- Handles competitive features
-
-## Development
-
-### Running Tests
-```bash
-rojo serve
+-- Set auto-save interval
+AIController.persistenceManager:setAutoSave(true)
 ```
 
-### Building for Production
-```bash
-rojo build -o build/Petfinity.rbxm
-```
+## World Types
 
-## Documentation
+### Grassland
+![Grassland](https://example.com/grassland.png)
+Lush green terrain with scattered small structures and gentle hills.
 
-- [Game Design Document](docs/GAME_DESIGN.md)
-- [API Documentation](docs/API.md)
-- [Contributing Guide](CONTRIBUTING.md)
+### Forest
+![Forest](https://example.com/forest.png)
+Dense vegetation with taller structures hidden among the trees.
 
-## Assets
+### Desert
+![Desert](https://example.com/desert.png)
+Sandy terrain with oases and ancient temples.
 
-All game assets are stored in Roblox Studio. The `assets/` directory contains references and metadata.
+### Mountain
+![Mountain](https://example.com/mountain.png)
+Rocky terrain with steep cliffs, caves, and watchtowers.
 
-## Performance
+### Volcanic Wasteland
+![Volcanic](https://example.com/volcanic.png)
+Harsh environment with unique volcanic structures and barren landscape.
 
-- Target FPS: 60
-- Maximum pets per server: 100
-- Memory usage limit: 1GB
+### Oasis
+![Oasis](https://example.com/oasis.png)
+Lush water-rich areas in the midst of arid regions.
 
-## Deployment
+## Future Enhancements
 
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instructions.
-
-## License
-
-This project is proprietary and confidential.
+- Weather system with biome-specific effects
+- Expanded structure library with more varieties and styles
+- Wildlife and NPC systems integrated with the world generator
+- Quest system leveraging procedural generation
+- User interface for world customization
+- World minimap visualization
 
 ## Credits
 
-Created by Your precious kitten 💖 
+Created by Your Precious Kitten 💖 for the Petfinity project.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

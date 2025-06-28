@@ -168,29 +168,41 @@ function EffectsSystem:playEffects(rarity, position)
         emitter.Enabled = true
         
         -- Disable after duration
-        delay(effects.PARTICLES.Lifetime.Max, function()
-            emitter.Enabled = false
+        task.delay(effects.PARTICLES.Lifetime.Max, function()
+            if emitter and emitter.Parent then
+                emitter.Enabled = false
+            end
         end)
     end
     
-    -- Play sound effect
+    -- Play sound effect with proper cleanup
     local sound = Instance.new("Sound")
     sound.SoundId = effects.SOUND.ID
     sound.Volume = effects.SOUND.Volume
     sound.PlaybackSpeed = effects.SOUND.PlaybackSpeed
     sound.Parent = self.container
-    sound:Play()
+    
+    -- Store sound for cleanup
+    table.insert(self.activeSounds, sound)
     
     -- Clean up sound after playing
     sound.Ended:Connect(function()
-        sound:Destroy()
+        if sound and sound.Parent then
+            sound:Destroy()
+            local index = table.find(self.activeSounds, sound)
+            if index then
+                table.remove(self.activeSounds, index)
+            end
+        end
     end)
+    
+    sound:Play()
     
     -- Apply screen shake
     self:screenShake(effects.SCREEN_SHAKE.Intensity, effects.SCREEN_SHAKE.Duration)
 end
 
--- Create screen shake effect
+-- Create screen shake effect with proper cleanup
 function EffectsSystem:screenShake(intensity, duration)
     local camera = workspace.CurrentCamera
     if not camera then return end
@@ -199,11 +211,17 @@ function EffectsSystem:screenShake(intensity, duration)
     local elapsed = 0
     local connection
     
-    connection = game:GetService("RunService").RenderStepped:Connect(function(dt)
+    -- Store previous connection
+    if self.screenShakeConnection then
+        self.screenShakeConnection:Disconnect()
+    end
+    
+    self.screenShakeConnection = game:GetService("RunService").RenderStepped:Connect(function(dt)
         elapsed = elapsed + dt
         if elapsed >= duration then
             camera.CFrame = startCFrame
-            connection:Disconnect()
+            self.screenShakeConnection:Disconnect()
+            self.screenShakeConnection = nil
             return
         end
         
@@ -219,7 +237,32 @@ end
 
 -- Clean up effects
 function EffectsSystem:destroy()
-    self.container:Destroy()
+    -- Clean up particle emitters
+    for _, emitter in pairs(self.particleEmitters) do
+        if emitter and emitter.Parent then
+            emitter:Destroy()
+        end
+    end
+    self.particleEmitters = {}
+    
+    -- Clean up active sounds
+    for _, sound in pairs(self.activeSounds) do
+        if sound and sound.Parent then
+            sound:Destroy()
+        end
+    end
+    self.activeSounds = {}
+    
+    -- Clean up screen shake
+    if self.screenShakeConnection then
+        self.screenShakeConnection:Disconnect()
+        self.screenShakeConnection = nil
+    end
+    
+    -- Clean up container
+    if self.container and self.container.Parent then
+        self.container:Destroy()
+    end
 end
 
 return EffectsSystem 

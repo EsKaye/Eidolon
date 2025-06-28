@@ -7,188 +7,94 @@
 ]]
 
 local BiomeHandler = {}
-
--- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
-local Lighting = game:GetService("Lighting")
 
 -- Constants
 local BIOME_CONFIG_PATH = "Config/Biomes"
+local DEFAULT_BIOME = "MYSTIC_MEADOWS"
 
--- Biome data cache
-local biomeData = nil
+-- Cache for biome data
+local biomeData = {}
 
--- Default biome settings
-local DEFAULT_BIOME = {
-    baseHeight = 10,
-    heightVariation = 20,
-    terrainTexture = Enum.Material.Grass,
-    terrainMaterial = Enum.Material.Grass,
-    weather = {
-        type = "Clear",
-        intensity = 1,
-        frequency = 0.5
-    },
-    lighting = {
-        ambient = Color3.fromRGB(200, 200, 200),
-        outdoorAmbient = Color3.fromRGB(200, 200, 200),
-        brightness = 1,
-        globalShadows = true
-    },
-    assets = {
-        trees = {},
-        rocks = {},
-        structures = {},
-        decorations = {}
-    },
-    ambientSounds = {},
-    spawnPoints = {}
-}
-
--- Private functions
+-- Load biome configuration
 local function loadBiomeConfig()
-    print("📂 Loading biome config...")
+    print("🌍 Loading biome configuration...")
     local success, result = pcall(function()
-        local config = require(ReplicatedStorage.Config.Biomes)
-        print("✅ Successfully loaded biome config!")
-        return config
+        return require(ReplicatedStorage:WaitForChild(BIOME_CONFIG_PATH))
     end)
     
     if not success then
         warn("❌ Failed to load biome config:", result)
-        print("🔍 Checking ReplicatedStorage structure:")
-        print("  ReplicatedStorage contents:")
-        for _, child in ipairs(ReplicatedStorage:GetChildren()) do
-            print("    -", child.Name)
-            if child:IsA("Folder") then
-                print("      Folder contents:")
-                for _, subChild in ipairs(child:GetChildren()) do
-                    print("        -", subChild.Name)
-                end
-            end
-        end
-        return {}
+        return nil
     end
     
+    print("✅ Biome configuration loaded successfully")
     return result
 end
 
-local function initializeBiomeData()
-    if biomeData then return biomeData end
-    
+-- Initialize biome data
+function BiomeHandler.init()
+    print("🌍 Initializing BiomeHandler...")
     local config = loadBiomeConfig()
-    biomeData = {}
-    
-    for biomeName, biomeConfig in pairs(config) do
-        biomeData[biomeName] = {
-            centerX = biomeConfig.centerX or 0,
-            centerZ = biomeConfig.centerZ or 0,
-            radius = biomeConfig.radius or 100,
-            baseHeight = biomeConfig.baseHeight or DEFAULT_BIOME.baseHeight,
-            heightVariation = biomeConfig.heightVariation or DEFAULT_BIOME.heightVariation,
-            terrainTexture = biomeConfig.terrainTexture or DEFAULT_BIOME.terrainTexture,
-            terrainMaterial = biomeConfig.terrainMaterial or DEFAULT_BIOME.terrainMaterial,
-            weather = biomeConfig.weather or DEFAULT_BIOME.weather,
-            lighting = {
-                ambient = Color3.fromRGB(
-                    biomeConfig.lighting and biomeConfig.lighting.ambient and biomeConfig.lighting.ambient.r or 200,
-                    biomeConfig.lighting and biomeConfig.lighting.ambient and biomeConfig.lighting.ambient.g or 200,
-                    biomeConfig.lighting and biomeConfig.lighting.ambient and biomeConfig.lighting.ambient.b or 200
-                ),
-                outdoorAmbient = Color3.fromRGB(
-                    biomeConfig.lighting and biomeConfig.lighting.outdoorAmbient and biomeConfig.lighting.outdoorAmbient.r or 200,
-                    biomeConfig.lighting and biomeConfig.lighting.outdoorAmbient and biomeConfig.lighting.outdoorAmbient.g or 200,
-                    biomeConfig.lighting and biomeConfig.lighting.outdoorAmbient and biomeConfig.lighting.outdoorAmbient.b or 200
-                ),
-                brightness = biomeConfig.lighting and biomeConfig.lighting.brightness or 1,
-                globalShadows = biomeConfig.lighting and biomeConfig.lighting.globalShadows or true
-            },
-            assets = biomeConfig.assets or DEFAULT_BIOME.assets,
-            ambientSounds = biomeConfig.ambientSounds or DEFAULT_BIOME.ambientSounds,
-            spawnPoints = biomeConfig.spawnPoints or DEFAULT_BIOME.spawnPoints
-        }
+    if not config then
+        warn("❌ BiomeHandler initialization failed: Could not load config")
+        return nil
     end
     
-    return biomeData
+    biomeData = config
+    print("✅ BiomeHandler initialized successfully")
+    return BiomeHandler
 end
 
--- Public functions
-function BiomeHandler.getBiomeData()
-    return biomeData or initializeBiomeData()
-end
-
-function BiomeHandler.getRandomBiomeName()
-    local data = BiomeHandler.getBiomeData()
-    local biomeNames = {}
-    
-    for name, _ in pairs(data) do
-        table.insert(biomeNames, name)
-    end
-    
-    return biomeNames[math.random(1, #biomeNames)]
-end
-
+-- Get biome info at position
 function BiomeHandler.getBiomeAtPosition(x, z)
-    local data = BiomeHandler.getBiomeData()
-    local closestBiome = nil
-    local minDistance = math.huge
-    
-    for biomeName, biome in pairs(data) do
-        local distance = (Vector2.new(x, z) - Vector2.new(biome.centerX, biome.centerZ)).Magnitude
-        if distance < minDistance and distance <= biome.radius then
-            minDistance = distance
-            closestBiome = biomeName
+    for biomeName, biome in pairs(biomeData) do
+        local distance = math.sqrt((x - biome.centerX)^2 + (z - biome.centerZ)^2)
+        if distance <= biome.radius then
+            return biomeName, biome
         end
     end
+    return DEFAULT_BIOME, biomeData[DEFAULT_BIOME]
+end
+
+-- Apply biome settings to terrain
+function BiomeHandler.applyBiomeSettings(position)
+    local biomeName, biome = BiomeHandler.getBiomeAtPosition(position.X, position.Z)
+    print("🌍 Applying biome settings for:", biomeName)
     
-    return closestBiome
-end
-
-function BiomeHandler.getBiomeSettings(biomeName)
-    local data = BiomeHandler.getBiomeData()
-    return data[biomeName] or DEFAULT_BIOME
-end
-
-function BiomeHandler.applyBiomeLighting(biomeName)
-    local settings = BiomeHandler.getBiomeSettings(biomeName)
+    -- Apply terrain settings
+    local terrain = workspace.Terrain
+    terrain.Material = biome.terrainMaterial
+    terrain.WaterColor = biome.terrainMaterial == Enum.Material.Water and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(0, 0, 0)
     
-    Lighting.Ambient = settings.lighting.ambient
-    Lighting.OutdoorAmbient = settings.lighting.outdoorAmbient
-    Lighting.Brightness = settings.lighting.brightness
-    Lighting.GlobalShadows = settings.lighting.globalShadows
-end
-
-function BiomeHandler.applyBiomeWeather(biomeName)
-    local settings = BiomeHandler.getBiomeSettings(biomeName)
-    -- Weather system implementation will go here
-end
-
-function BiomeHandler.playAmbientSounds(biomeName)
-    local settings = BiomeHandler.getBiomeSettings(biomeName)
-    -- Sound system implementation will go here
-end
-
-function BiomeHandler.applyBiomeSettings()
-    print("🌿 Applying all biome settings...")
+    -- Apply lighting settings
+    local lighting = game:GetService("Lighting")
+    lighting.Ambient = biome.lighting.ambient
+    lighting.OutdoorAmbient = biome.lighting.outdoorAmbient
+    lighting.Brightness = biome.lighting.brightness
+    lighting.GlobalShadows = biome.lighting.globalShadows
     
-    -- Get the biome at the center of the world
-    local centerBiome = BiomeHandler.getBiomeAtPosition(0, 0)
-    if not centerBiome then
-        warn("⚠️ No biome found at center position")
-        return
+    -- Apply weather settings
+    if biome.weather then
+        -- Weather system will be implemented later
+        print("🌤️ Weather system pending implementation")
     end
     
-    -- Apply lighting
-    BiomeHandler.applyBiomeLighting(centerBiome)
-    
-    -- Apply weather (when implemented)
-    BiomeHandler.applyBiomeWeather(centerBiome)
-    
-    -- Play ambient sounds (when implemented)
-    BiomeHandler.playAmbientSounds(centerBiome)
-    
-    print("✅ Biome settings applied!")
+    return biome
+end
+
+-- Get biome data
+function BiomeHandler.getBiomeData(biomeName)
+    return biomeData[biomeName]
+end
+
+-- Get all biome names
+function BiomeHandler.getBiomeNames()
+    local names = {}
+    for name, _ in pairs(biomeData) do
+        table.insert(names, name)
+    end
+    return names
 end
 
 return BiomeHandler 
