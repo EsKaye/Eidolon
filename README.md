@@ -1,10 +1,16 @@
-# Petfinity - AI-Generated & Persistent World System
+# Eidolon - AI-Generated & Persistent World System
 
 ## Overview
 
-Petfinity is a procedurally generated world system for Roblox, featuring AI-driven terrain generation, biome blending, structure placement, and world persistence. The system is designed to create immersive, unique environments that persist across play sessions.
+Eidolon is a procedurally generated world system for Roblox, featuring AI-driven terrain generation, biome blending, structure placement, and world persistence. The system is designed to create immersive, unique environments that persist across play sessions.
 
-![Petfinity](https://example.com/petfinity_banner.png)
+For source code and issue tracking, visit the [GitHub repository](https://github.com/DivinaNetwork/Eidolon).
+
+![Eidolon](https://example.com/eidolon_banner.png)
+
+## Ecosystem Integration
+
+Eidolon anchors the **Divina Network** by supplying persistent, AI-crafted worlds to upcoming experiences like [GrandTheftLux](https://github.com/DivinaNetwork/GrandTheftLux). Forthcoming modules—**BladeAeternum** for combat choreography and **NeuroBloom** for adaptive cognition—will plug into Eidolon to deliver a cohesive metaverse across titles.
 
 ## Features
 
@@ -145,11 +151,12 @@ Lush water-rich areas in the midst of arid regions.
 - Quest system leveraging procedural generation
 - User interface for world customization
 - World minimap visualization
+- Integration hooks for Divina Network modules (BladeAeternum, NeuroBloom) to support cross-title experiences like GrandTheftLux
 
 ## Credits
 
-Created by Your Precious Kitten 💖 for the Petfinity project.
+Created by Your Precious Kitten 💖 for the Eidolon project.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.

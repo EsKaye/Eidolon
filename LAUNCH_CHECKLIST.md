@@ -1,4 +1,4 @@
-# 🚀 PETFINITY Launch Checklist
+# 🚀 Eidolon Launch Checklist
 
 ## 1️⃣ Final Testing Phase
 
