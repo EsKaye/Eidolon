@@ -65,6 +65,7 @@ local BiomeBlender = loadModule(script.Parent.BiomeBlender)
 local StructurePlacer = loadModule(script.Parent.StructurePlacer)
 local PersistenceManager = loadModule(script.Parent.PersistenceManager)
 local ChunkManager = loadModule(script.Parent.ChunkManager)
+local GhostMemoryTracker = loadModule(script.Parent.GhostMemory)
 
 -- Create a new AIController instance
 function AIController.new()
@@ -127,6 +128,12 @@ function AIController:initializeModules()
         self.persistenceManager = PersistenceManager.new()
         self.persistenceManager:initialize()
         print("✅ PersistenceManager initialized")
+
+        -- Initialize GhostMemoryTracker if available
+        if GhostMemoryTracker then
+            self.ghostMemoryTracker = GhostMemoryTracker.new(self.persistenceManager)
+            print("✅ GhostMemoryTracker initialized")
+        end
     else
         warn("⚠️ PersistenceManager module not available")
     end
