@@ -25,6 +25,26 @@ Petfinity is a procedurally generated world system for Roblox, featuring AI-driv
 - **Resilient Storage**: Fallback to in-memory backup if DataStore is unavailable
 - **Auto-Save System**: Periodic saving to prevent data loss
 
+### 🪞 Ghost Memory Tracking
+- **Dream Journaling**: Records player dreams for later reflection with mood, lucidity and tag metadata
+- **Projected Soul Logs**: Persists out-of-body adventures using the new GhostMemoryTracker module
+- **Searchable Archives**: Query dreams by tag or custom filter functions and fetch the most recent entry
+- **Retention Limits**: Configurable caps keep only the freshest memories while trimming the rest
+- **One-Tap Purge/Export**: Clear journals or export a deep copy for analytics and cross-world sharing
+
+```lua
+-- Log a lucid dream with a tag and mood
+local tracker = AIController.ghostMemoryTracker
+tracker:addDream(player, "Flight over neon dunes", {
+    tags = {"flight", "desert"},
+    mood = "elated",
+    lucidity = 85,
+})
+
+-- Fetch only dreams tagged "flight"
+local aerialDreams = tracker:getDreams(player, "flight")
+```
+
 ### 🏗️ Structure System
 - **Biome-Specific Structures**: Different types of buildings for each environment
 - **Placement Rules**: Smart positioning based on terrain characteristics
