@@ -1,4 +1,9 @@
-# 📝 PETFINITY Changelog
+# 📝 Eidolon Changelog
+
+## [Unreleased]
+
+### Added
+- Documentation linking Eidolon to GrandTheftLux, BladeAeternum, and NeuroBloom within the Divina Network
 
 ## [v1.0.0] - 2024-03-03 🚀 Initial Release
 
