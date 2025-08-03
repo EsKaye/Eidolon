@@ -53,13 +53,21 @@ function Effects.createParticles(sprite, config)
     local emitter = Instance.new("ParticleEmitter")
     emitter.Name = "ParticleEffect"
     emitter.Rate = config.rate or EFFECT_CONFIG.PARTICLES.EMISSION_RATE
-    emitter.Lifetime = NumberRange.new(
-        config.lifetime?.min or EFFECT_CONFIG.PARTICLES.LIFETIME.MIN,
-        config.lifetime?.max or EFFECT_CONFIG.PARTICLES.LIFETIME.MAX
-    )
+    -- Safely resolve optional lifetime parameters
+    local lifetimeMin = (config.lifetime and config.lifetime.min)
+        or EFFECT_CONFIG.PARTICLES.LIFETIME.MIN
+    local lifetimeMax = (config.lifetime and config.lifetime.max)
+        or EFFECT_CONFIG.PARTICLES.LIFETIME.MAX
+    emitter.Lifetime = NumberRange.new(lifetimeMin, lifetimeMax)
+
+    -- Safely resolve optional size parameters
+    local sizeMin = (config.size and config.size.min)
+        or EFFECT_CONFIG.PARTICLES.SIZE.MIN
+    local sizeMax = (config.size and config.size.max)
+        or EFFECT_CONFIG.PARTICLES.SIZE.MAX
     emitter.Size = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, config.size?.min or EFFECT_CONFIG.PARTICLES.SIZE.MIN),
-        NumberSequenceKeypoint.new(1, config.size?.max or EFFECT_CONFIG.PARTICLES.SIZE.MAX)
+        NumberSequenceKeypoint.new(0, sizeMin),
+        NumberSequenceKeypoint.new(1, sizeMax)
     })
     emitter.Color = ColorSequence.new(config.color or Color3.new(1, 1, 1))
     emitter.Transparency = NumberSequence.new({

@@ -120,10 +120,11 @@ end
 
 -- Optimized gradient function for Perlin noise
 local function grad(hash, x, y, z)
-    local h = hash & 15
-    local u = h < 8 and x or y
-    local v = h < 4 and y or (h == 12 or h == 14 and x or z)
-    return ((h & 1) == 0 and u or -u) + ((h & 2) == 0 and v or -v)
+-- Use bit32 operations for compatibility with Lua 5.1/Luau
+local h = bit32.band(hash, 15)
+local u = h < 8 and x or y
+local v = h < 4 and y or ((h == 12 or h == 14) and x or z)
+return (bit32.band(h, 1) == 0 and u or -u) + (bit32.band(h, 2) == 0 and v or -v)
 end
 
 -- Create a new NoiseGenerator instance
@@ -251,22 +252,22 @@ function NoiseGenerator:perlin3D(x, y, z)
     local u, v, w = fade(x), fade(y), fade(z)
     
     -- Hash coordinates of cube corners (optimization: minimize table lookups)
-    local perm_xi = perm[xi & 255]
-    local perm_xi_1 = perm[(xi + 1) & 255]
-    
-    local perm_yi = perm[(perm_xi + yi) & 255]
-    local perm_yi_1 = perm[(perm_xi + yi + 1) & 255]
-    local perm_xi1_yi = perm[(perm_xi_1 + yi) & 255]
-    local perm_xi1_yi1 = perm[(perm_xi_1 + yi + 1) & 255]
-    
-    local aaa = perm[(perm_yi + zi) & 255]
-    local aba = perm[(perm_yi_1 + zi) & 255]
-    local aab = perm[(perm_yi + zi + 1) & 255]
-    local abb = perm[(perm_yi_1 + zi + 1) & 255]
-    local baa = perm[(perm_xi1_yi + zi) & 255]
-    local bba = perm[(perm_xi1_yi1 + zi) & 255]
-    local bab = perm[(perm_xi1_yi + zi + 1) & 255]
-    local bbb = perm[(perm_xi1_yi1 + zi + 1) & 255]
+    local perm_xi = perm[bit32.band(xi, 255)]
+    local perm_xi_1 = perm[bit32.band(xi + 1, 255)]
+
+    local perm_yi = perm[bit32.band(perm_xi + yi, 255)]
+    local perm_yi_1 = perm[bit32.band(perm_xi + yi + 1, 255)]
+    local perm_xi1_yi = perm[bit32.band(perm_xi_1 + yi, 255)]
+    local perm_xi1_yi1 = perm[bit32.band(perm_xi_1 + yi + 1, 255)]
+
+    local aaa = perm[bit32.band(perm_yi + zi, 255)]
+    local aba = perm[bit32.band(perm_yi_1 + zi, 255)]
+    local aab = perm[bit32.band(perm_yi + zi + 1, 255)]
+    local abb = perm[bit32.band(perm_yi_1 + zi + 1, 255)]
+    local baa = perm[bit32.band(perm_xi1_yi + zi, 255)]
+    local bba = perm[bit32.band(perm_xi1_yi1 + zi, 255)]
+    local bab = perm[bit32.band(perm_xi1_yi + zi + 1, 255)]
+    local bbb = perm[bit32.band(perm_xi1_yi1 + zi + 1, 255)]
     
     -- Gradients at corners
     local x1 = lerp(grad(aaa, x, y, z), grad(baa, x-1, y, z), u)
@@ -326,22 +327,22 @@ function NoiseGenerator:batchPerlin3D(pointsList)
         local u, v, w = fade(x), fade(y), fade(z)
         
         -- Compute all hash lookups
-        local perm_xi = perm[xi & 255]
-        local perm_xi_1 = perm[(xi + 1) & 255]
-        
-        local perm_yi = perm[(perm_xi + yi) & 255]
-        local perm_yi_1 = perm[(perm_xi + yi + 1) & 255]
-        local perm_xi1_yi = perm[(perm_xi_1 + yi) & 255]
-        local perm_xi1_yi1 = perm[(perm_xi_1 + yi + 1) & 255]
-        
-        local aaa = perm[(perm_yi + zi) & 255]
-        local aba = perm[(perm_yi_1 + zi) & 255]
-        local aab = perm[(perm_yi + zi + 1) & 255]
-        local abb = perm[(perm_yi_1 + zi + 1) & 255]
-        local baa = perm[(perm_xi1_yi + zi) & 255]
-        local bba = perm[(perm_xi1_yi1 + zi) & 255]
-        local bab = perm[(perm_xi1_yi + zi + 1) & 255]
-        local bbb = perm[(perm_xi1_yi1 + zi + 1) & 255]
+        local perm_xi = perm[bit32.band(xi, 255)]
+        local perm_xi_1 = perm[bit32.band(xi + 1, 255)]
+
+        local perm_yi = perm[bit32.band(perm_xi + yi, 255)]
+        local perm_yi_1 = perm[bit32.band(perm_xi + yi + 1, 255)]
+        local perm_xi1_yi = perm[bit32.band(perm_xi_1 + yi, 255)]
+        local perm_xi1_yi1 = perm[bit32.band(perm_xi_1 + yi + 1, 255)]
+
+        local aaa = perm[bit32.band(perm_yi + zi, 255)]
+        local aba = perm[bit32.band(perm_yi_1 + zi, 255)]
+        local aab = perm[bit32.band(perm_yi + zi + 1, 255)]
+        local abb = perm[bit32.band(perm_yi_1 + zi + 1, 255)]
+        local baa = perm[bit32.band(perm_xi1_yi + zi, 255)]
+        local bba = perm[bit32.band(perm_xi1_yi1 + zi, 255)]
+        local bab = perm[bit32.band(perm_xi1_yi + zi + 1, 255)]
+        local bbb = perm[bit32.band(perm_xi1_yi1 + zi + 1, 255)]
         
         -- Calculate gradients and interpolate
         local x1 = lerp(grad(aaa, x, y, z), grad(baa, x-1, y, z), u)

@@ -128,7 +128,8 @@ function AnimationController:playAnimation(state, transitionTime)
         self.isTransitioning = false
     end)
     
-    self.blendTweens.in = blendIn
+    -- `in` is a reserved keyword in Lua; use explicit key access
+    self.blendTweens["in"] = blendIn
     blendIn:Play()
     
     -- Update current state

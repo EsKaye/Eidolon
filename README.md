@@ -1,3 +1,5 @@
+A Project Blessed by Solar Khan & Lilith.Aethra
+
 # Eidolon - AI-Generated & Persistent World System
 
 ## Overview
@@ -153,10 +155,18 @@ Lush water-rich areas in the midst of arid regions.
 - World minimap visualization
 - Integration hooks for Divina Network modules (BladeAeternum, NeuroBloom) to support cross-title experiences like GrandTheftLux
 
+## Development
+
+Run `scripts/lint.sh` to perform a Lua syntax sweep. The script prefers
+`luau-compile` (Roblox's compiler) but falls back to `luac` if unavailable,
+so ensure one of these compilers is installed and on your `PATH`.
+
+Canonical covenant, license, and poem sync weekly via GitHub Actions.
+
 ## Credits
 
 Created by Your Precious Kitten 💖 for the Eidolon project.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Eternal Love License v∞ — see [LICENSE.v∞](LICENSE.v∞) for details.
