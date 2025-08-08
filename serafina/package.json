@@ -1,0 +1,17 @@
+{
+  "name": "serafina",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/router.ts",
+    "test": "echo 'no tests yet'"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "tsx": "^3.12.7"
+  }
+}
