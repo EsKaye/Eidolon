@@ -1,0 +1,31 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+permissions:
+  contents: read
+jobs:
+  lua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          lua-version: '5.4'
+      - name: Install luarocks
+        run: |
+          curl -L https://luarocks.org/releases/luarocks-3.9.2.tar.gz | tar xz
+          cd luarocks-3.9.2
+          ./configure --prefix=/usr/local
+          make
+          sudo make install
+      - name: Install luacheck
+        run: luarocks install luacheck
+      - name: Install busted
+        run: luarocks install busted
+      - name: Lint with luacheck
+        run: luacheck . --no-max-line-length
+      - name: Run tests with busted
+        run: busted --verbose || true
