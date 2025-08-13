@@ -1,0 +1,19 @@
+# Code owners for Eidolon
+# This file defines who is responsible for different parts of the codebase
+
+# Global owners
+* @EsKaye
+
+# Lua files
+*.lua @EsKaye
+
+# Configuration files
+*.rockspec @EsKaye
+*.conf @EsKaye
+
+# Documentation
+*.md @EsKaye
+docs/ @EsKaye
+
+# GitHub workflows
+.github/ @EsKaye
